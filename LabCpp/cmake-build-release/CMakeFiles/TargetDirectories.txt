@@ -1,3 +1,0 @@
-C:/Users/pytlu/CLionProjects/LabCpp/cmake-build-release/CMakeFiles/LabCpp.dir
-C:/Users/pytlu/CLionProjects/LabCpp/cmake-build-release/CMakeFiles/edit_cache.dir
-C:/Users/pytlu/CLionProjects/LabCpp/cmake-build-release/CMakeFiles/rebuild_cache.dir
