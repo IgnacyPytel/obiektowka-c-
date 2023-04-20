@@ -1,3 +1,0 @@
-C:/obiektowka-c--main/obiektowka-c--main/LabCpp/obiektowka-c--main/LabCpp/cmake-build-debug/CMakeFiles/LabCpp.dir
-C:/obiektowka-c--main/obiektowka-c--main/LabCpp/obiektowka-c--main/LabCpp/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/obiektowka-c--main/obiektowka-c--main/LabCpp/obiektowka-c--main/LabCpp/cmake-build-debug/CMakeFiles/rebuild_cache.dir
