@@ -1,0 +1,118 @@
+ciasteczka
+
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+// Struktura opakowania ciastek
+struct Paczka {
+    int id; // Identyfikator opakowania
+    int capacity; // Pojemność opakowania (liczba ciastek)
+    double basePrice; // Cena bazowa 1 ciastka
+    double discount; // Zniżka na całość w opakowaniu
+    int quantity; // Liczba ciastek w opakowaniu
+    bool packed; // Informacja o tym, czy opakowanie zostało zapakowane do opakowania zbiorczego
+    int orderId; // Numer zamówienia, do którego przypisane jest opakowanie (0 oznacza brak przypisania)
+
+
+    Paczka(int i, int c, double p) {
+        id = i;
+        capacity = c;
+        basePrice = p;
+        quantity = 0;
+        packed = false;
+        orderId = 0;
+
+        // Ustalenie zniżki w zależności od pojemności opakowania
+        if (capacity == 1) {
+            discount = 0;
+        } else if (capacity == 3) {
+            discount = 0.01;
+        } else if (capacity == 5) {
+            discount = 0.02;
+        } else {
+            discount = 0.03;
+        }
+    }
+
+// Metoda zwracająca cenę 1 ciastka w opakowaniu po uwzględnieniu zniżki
+    double cena() {
+        return basePrice * (1 - discount);
+    }
+
+// Metoda dodająca ciastka do opakowania
+    void dodajCiastka(int num) {
+        if (quantity + num <= capacity) {
+            quantity += num;
+        }
+    }
+};
+
+// Struktura opakowania zbiorczego
+struct OpakowanieZbiorcze  {
+    int id; // Identyfikator opakowania zbiorczego
+    vector<Paczka*> packages; // Wektor wskaźników na opakowania zapakowane do opakowania zbiorczego
+    double discount; // Zniżka na całość w opakowaniu zbiorczym
+    int orderId; // Numer zamówienia, do którego przypisane jest opakowanie zbiorcze (0 oznacza brak przypisania)
+
+    OpakowanieZbiorcze (int i) {
+        id = i;
+        discount = 0;
+        orderId = 0;
+    }
+
+// Metoda dodająca opakowanie do opakowania zbiorczego
+    bool dodajPaczke(Paczka* p) {
+        if (packages.empty()) {
+            packages.push_back(p);
+            p->packed = true;
+            return true;
+        } else if (packages.front()->capacity == p->capacity && !packages.front()->packed) {
+            packages.push_back(p);
+            p->packed = true;
+            return true;
+        }
+        return false;
+    }
+
+// Metoda zwracająca cenę 1 ciastka w opakowaniu zbiorczym po uwzględnieniu zniżki
+    double getCena() {
+        double total = 0;
+        for (auto p : packages) {
+            total += p->quantity * p->cena();
+        }
+        return total * (1 - discount);
+    }
+};
+
+
+int main() {
+// Tworzenie opakowań
+    Paczka p1(1, 1, 3);
+    Paczka p3(3, 3, 3);
+    Paczka p5(5, 5, 3);
+    Paczka p12(12, 12, 3);
+
+
+// Testowanie metody dodającej ciastka do opakowania
+    p1.dodajCiastka(1);
+    p3.dodajCiastka(2);
+    p5.dodajCiastka(4);
+    p12.dodajCiastka(8);
+
+// Testowanie metody zwracającej cenę 1 ciastka w opakowaniu
+    cout << "Cena 1 ciastka w opakowaniu po uwzglednieniu znizki: " << p12.cena() << endl;
+
+// Tworzenie opakowania zbiorczego
+    OpakowanieZbiorcze  bp1(1);
+
+// Testowanie metody dodającej opakowanie do opakowania zbiorczego
+    bp1.dodajPaczke(&p1);
+    bp1.dodajPaczke(&p3);
+    bp1.dodajPaczke(&p5);
+    cout << "Cena opakowania zbiorczego po uwzglednieniu znizki: " << bp1.getCena() << endl;
+
+    return 0;
+}
