@@ -1,0 +1,121 @@
+paczki
+
+#include <iostream>
+#include <vector>
+
+class Paczka {
+protected:
+    int rozmiar;
+
+public:
+    Paczka(int r) : rozmiar(r) {}
+
+    virtual int objetosc() const = 0;
+
+    virtual void wyswietl() const = 0;
+};
+
+class Paczka_M : public Paczka {
+public:
+    Paczka_M() : Paczka(1) {}
+
+    int objetosc() const override { return 1; }
+
+    void wyswietl() const override { std::cout << "Paczka_M\n"; }
+};
+
+class Paczka_S : public Paczka {
+public:
+    Paczka_S() : Paczka(2) {}
+
+    int objetosc() const override { return 3; }
+
+    void wyswietl() const override { std::cout << "Paczka_S\n"; }
+};
+
+class Paczka_D : public Paczka {
+public:
+    Paczka_D() : Paczka(3) {}
+
+    int objetosc() const override { return 7; }
+
+    void wyswietl() const override { std::cout << "Paczka_D\n"; }
+};
+
+class Kontener {
+private:
+    int pojemnosc;
+    int zajete;
+
+    std::vector<Paczka*> paczki;
+
+public:
+    Kontener(int p) : pojemnosc(p), zajete(0) {}
+
+    int wolne_miejsce() const { return pojemnosc - zajete; }
+
+    bool dodaj_paczke(Paczka* p) {
+        if (p->objetosc() > wolne_miejsce())
+            return false;
+
+        paczki.push_back(p);
+        zajete += p->objetosc();
+        return true;
+    }
+
+    void wyswietl() const {
+        std::cout << "Kontener:\n";
+
+        for (const auto& p : paczki)
+            p->wyswietl();
+
+        std::cout << "Zajete miejsce: " << zajete << "/" << pojemnosc << "\n\n";
+    }
+
+    Paczka* wyjmij_paczke(int index) {
+        Paczka* p = paczki[index];
+        paczki.erase(paczki.begin() + index);
+        zajete -= p->objetosc();
+        return p;
+    }
+};
+
+int main() {
+    std::vector<Kontener> kontenery;
+    kontenery.push_back(Kontener(12));
+
+    Paczka *p1 = new Paczka_M();
+    Paczka *p2 = new Paczka_D();
+    Paczka *p3 = new Paczka_S();
+    Paczka *p4 = new Paczka_M();
+    Paczka *p5 = new Paczka_D();
+    Paczka *p6 = new Paczka_M();
+
+    for (auto p: {p1, p2, p3, p4, p5, p6}) {
+        bool dodane = false;
+
+        for (auto &k: kontenery) {
+            if (k.dodaj_paczke(p)) {
+                dodane = true;
+                break;
+            }
+        }
+
+        if (!dodane) {
+            kontenery.push_back(Kontener(12));
+            kontenery.back().dodaj_paczke(p);
+        }
+    }
+
+    for (auto &k: kontenery)
+        k.wyswietl();
+
+    delete p1;
+    delete p2;
+    delete p3;
+    delete p4;
+    delete p5;
+    delete p6;
+    return 0;
+}
+
