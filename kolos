@@ -1,1 +1,123 @@
+z pojemnikami
+#include <iostream>
+#include <cmath>
 
+using namespace std;
+class Pojemnik {
+protected:
+    double pojemnosc;
+    bool pelny;
+public:
+    Pojemnik(double p = 0.0) : pojemnosc(p), pelny(false) {}
+    virtual ~Pojemnik() {}
+    virtual void wypisz() = 0;
+    virtual void zmien_pojemnosc(double p) { pojemnosc = p; }
+    virtual void napelnij() { pelny = true; }
+    virtual void oproznij() { pelny = false; }
+    virtual void przelej_do(Pojemnik& p) {
+        if (!pelny) {
+            cout << "Nie mozna przelewac z pustego pojemnika.\n";
+            return;
+        }
+        double obj = min(p.pojemnosc, pojemnosc);
+        p.napelnij();
+        oproznij();
+        if (obj < pojemnosc) {
+            zmien_pojemnosc(obj);
+        } else if (obj < p.pojemnosc) {
+            p.zmien_pojemnosc(obj);
+        }
+    }
+    bool czy_pelny() { return pelny; }
+};
+
+
+class Karton : public Pojemnik {
+private:
+    double szerokosc;
+    double glebokosc;
+    double wysokosc;
+
+public:
+    Karton(double pojemnosc, double szerokosc, double glebokosc, double wysokosc) :
+            Pojemnik(pojemnosc), szerokosc(szerokosc), glebokosc(glebokosc), wysokosc(wysokosc) {}
+
+    void zmien_pojemnosc(double nowa_pojemnosc) override {
+        // Obliczamy nowe wymiary z zachowaniem proporcji
+        double k = pow(nowa_pojemnosc / pojemnosc, 1.0/3);
+        szerokosc *= k;
+        glebokosc *= k;
+        wysokosc *= k;
+
+        // Ustawiamy nową pojemność
+        pojemnosc = nowa_pojemnosc;
+    }
+
+    void wypisz() override {
+        cout << "Karton o wymiarach " << szerokosc << " x " << glebokosc << " x " << wysokosc << ", ";
+        if (pelny) {
+            cout << "pelny.\n";
+        } else {
+            cout << "pusty.\n";
+        }
+    }
+};
+
+class Puszka : public Pojemnik {
+protected:
+    double r, h;
+public:
+    Puszka(double rr = 0.0, double hh = 0.0) : r(rr), h(hh) {
+        pojemnosc = M_PI * r * r * h;
+    }
+    void wypisz() override {
+        cout << "Puszka o pojemnosci " << pojemnosc << ", ";
+        if (pelny) {
+            cout << "pelna.\n";
+        } else {
+            cout << "pusta.\n";
+        }
+    }
+};
+
+class Butelka : public Pojemnik {
+protected:
+    double r, h;
+public:
+    Butelka(double rr = 0.0, double hh = 0.0) : r(rr), h(hh) {
+        pojemnosc = M_PI * r * r * h / 3.0 * 4.0;
+    }
+    void wypisz() override {
+        cout << "Butelka o pojemnosci " << pojemnosc << ", ";
+        if (pelny) {
+            cout << "pelna.\n";
+        } else {
+            cout << "pusta.\n";
+        }
+    }
+};
+
+int main() {
+    Puszka puszka(2.5, 5.0);
+    Butelka butelka(2.5, 5.0);
+    Karton karton(10.0, 20.0, 30.0, 40.0);
+    puszka.wypisz();
+    butelka.wypisz();
+    karton.wypisz();
+
+    puszka.napelnij();
+    puszka.wypisz();
+
+    butelka.przelej_do(puszka);
+    puszka.wypisz();
+    butelka.wypisz();
+
+    karton.przelej_do(butelka);
+    butelka.wypisz();
+    karton.wypisz();
+
+    karton.zmien_pojemnosc(15.0);
+    karton.wypisz();
+
+    return 0;
+}
