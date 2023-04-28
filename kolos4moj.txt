@@ -1,0 +1,241 @@
+#include <iostream>
+#include <vector>
+#include <cstdlib>
+#include <ctime>
+
+using namespace std;
+
+class Zestaw {
+protected:
+    int liczba_wagonow;
+public:
+    virtual void wyswietl() = 0;
+    virtual bool czy_pasazerski() = 0;
+    virtual bool czy_towarowy() = 0;
+    virtual bool czy_pocztowy() = 0;
+    int getLiczbaWagonow() const { return liczba_wagonow; }
+    virtual void wypisz_informacje() const = 0;
+    virtual ~Zestaw() {}
+};
+
+class Zestaw_Pas : public Zestaw {
+public:
+    Zestaw_Pas() {
+        liczba_wagonow = rand() % 4 + 2; // losowa liczba wagonów z zakresu 2-5
+    }
+    void wyswietl() {
+        cout << "Zestaw pasazerski (" << liczba_wagonow << " wagonow)" << endl;
+    }
+    bool czy_pasazerski() { return true; }
+    bool czy_towarowy() { return false; }
+    bool czy_pocztowy() { return false; }
+    void wypisz_informacje() const { cout << "Jestem zestawem pasazerskim" << endl; }
+};
+
+class Zestaw_Tow : public Zestaw {
+public:
+    Zestaw_Tow() {
+        liczba_wagonow = rand() % 12 + 3; // losowa liczba wagonów z zakresu 3-14
+    }
+    void wyswietl() {
+        cout << "Zestaw towarowy (" << liczba_wagonow << " wagonow)" << endl;
+    }
+    bool czy_pasazerski() { return false; }
+    bool czy_towarowy() { return true; }
+    bool czy_pocztowy() { return false; }
+    void wypisz_informacje() const { cout << "Jestem zestawem towarowym" << endl; }
+};
+
+class Zestaw_Poc : public Zestaw {
+public:
+    Zestaw_Poc() {
+        liczba_wagonow = rand() % 3 + 1; // losowa liczba wagonów z zakresu 1-3
+    }
+    void wyswietl() {
+        cout << "Zestaw pocztowy (" << liczba_wagonow << " wagonow)" << endl;
+    }
+    bool czy_pasazerski() { return false; }
+    bool czy_towarowy() { return false; }
+    bool czy_pocztowy() { return true; }
+    void wypisz_informacje() const { cout << "Jestem zestawem pocztowym" << endl; }
+};
+
+
+// Funkcja pomocnicza do wyświetlania zawartości wektora zestawów
+void wyswietl_zestawy(vector<Zestaw*> zestawy) {
+    for (int i = 0; i < zestawy.size(); i++) {
+        zestawy[i]->wyswietl();
+    }
+    cout << endl;
+}
+
+int main() {
+    // Inicjalizacja generatora liczb pseudolosowych
+    srand(time(NULL));
+// Tworzenie wektora zestawów
+    vector<Zestaw *> zestawy;
+    vector<Zestaw *> niedopiety;
+
+    int wybor;
+    while (true) {
+        vector<vector<Zestaw*>> pociagi;
+        cout << "Wybierz opcje:" << endl;
+        cout << "1. Tworz nowy zestaw wagonow" << endl;
+        cout << "2. Wyswietl liste pociagow" << endl;
+        cout << "3. Odepnij zestaw od pociagu" << endl;
+        cout << "4. Wyswietl liste niedopietych zestawow" << endl;
+        cout << "5. Usun wybrany zestaw niepodpietych wagonow" << endl;
+        cout << "6. Zlec przylaczenie niepodpietego zestawu do pociagu" << endl;
+        cout << "7. Wyjdz z programu" << endl;
+        cout << "Wybor: ";
+        cin >> wybor;
+
+        switch (wybor) {
+            case 1:
+                // Tworzenie nowego zestawu wagonów
+                cout << "Wybierz rodzaj zestawu:" << endl;
+                cout << "1. Pasazerski" << endl;
+                cout << "2. Towarowy" << endl;
+                cout << "3. Pocztowy" << endl;
+                cout << "Wybor: ";
+                int rodzaj;
+                cin >> rodzaj;
+                if (rodzaj == 1) {
+                    zestawy.push_back(new Zestaw_Pas());
+                } else if (rodzaj == 2) {
+                    zestawy.push_back(new Zestaw_Tow());
+                } else if (rodzaj == 3) {
+                    zestawy.push_back(new Zestaw_Poc());
+                } else {
+                    cout << "Nieprawidlowy wybor." << endl;
+                }
+                break;
+            case 2:
+                // Wyświetlanie listy pociągów
+                if (zestawy.empty()) {
+                    cout << "Brak pociagow." << endl;
+                }
+                else {
+                    for (int i = 0; i < zestawy.size(); i++) {
+                        cout << "Pociag " << i+1 << ": ";
+                        if (zestawy[i]->czy_pasazerski()) {
+                            cout << "pasazerski ";
+                        }
+                        else if (zestawy[i]->czy_towarowy()) {
+                            cout << "towarowy ";
+                        }
+                        else if (zestawy[i]->czy_pocztowy()) {
+                            cout << "pocztowy ";
+                        }
+                        cout << "(" << zestawy[i]->getLiczbaWagonow() << " wagonow)" << endl;
+                    }
+                }
+                break;
+            case 3:
+                // Odepinanie zestawu od pociągu
+                if (zestawy.empty()) {
+                    cout << "Brak pociagow." << endl;
+                } else {
+                    int nr_pociagu;
+                    cout << "Podaj numer pociagu: ";
+                    cin >> nr_pociagu;
+                    if (nr_pociagu > 0 && nr_pociagu <= zestawy.size()) {
+                        // Dodanie zestawu do wektora niedociągniętych zestawów
+                        niedopiety.push_back(zestawy[nr_pociagu - 1]);
+                        // Usunięcie zestawu z wektora zestawów
+                        zestawy.erase(zestawy.begin() + nr_pociagu - 1);
+                        cout << "Zestaw odepniety od pocigu." << endl;
+                    } else {
+                        cout << "Nieprawidlowy numer pociagu." << endl;
+                    }
+                }
+                break;
+            case 4:
+                // Wyświetlanie listy niedociągniętych zestawów
+                if (niedopiety.empty()) {
+                    cout << "Brak niedopietych zestawow." << endl;
+                }
+                else {
+                    for (int i = 0; i < niedopiety.size(); i++) {
+                        cout << "Zestaw " << i+1 << ": ";
+                        if (niedopiety[i]->czy_pasazerski()) {
+                            cout << "pasazerski ";
+                        }
+                        else if (niedopiety[i]->czy_towarowy()) {
+                            cout << "towarowy ";
+                        }
+                        else if (niedopiety[i]->czy_pocztowy()) {
+                            cout << "pocztowy ";
+                        }
+                        cout << "(" << niedopiety[i]->getLiczbaWagonow() << " wagonow)" << endl;
+                    }
+                }
+                break;
+            case 5:
+// Usuwanie wybranego niedociągniętego zestawu
+                if (niedopiety.empty()) {
+                    cout << "Brak niedopietych zestawow." << endl;
+                } else {
+                    int nr_zestawu;
+                    cout << "Podaj numer zestawu: ";
+                    cin >> nr_zestawu;
+                    if (nr_zestawu > 0 && nr_zestawu <= niedopiety.size()) {
+// Usunięcie zestawu z wektora niedociągniętych zestawów
+                        delete niedopiety[nr_zestawu - 1];
+                        niedopiety.erase(niedopiety.begin() + nr_zestawu - 1);
+                        cout << "Zestaw usuniety." << endl;
+                    } else {
+                        cout << "Nieprawidlowy numer zestawu." << endl;
+                    }
+                }
+                break;
+            case 6:
+                // Zlec przylaczenie niepodpietego zestawu do pociagu
+                if (niedopiety.empty()) {
+                    cout << "Brak niedopietych zestawow." << endl;
+                } else {
+                    cout << "Wybierz zestaw do przylaczenia:" << endl;
+                    for (int i = 0; i < niedopiety.size(); i++) {
+                        cout << i+1 << ". ";
+                        niedopiety[i]->wypisz_informacje();
+                    }
+                    cout << "Wybor: ";
+                    int numer;
+                    cin >> numer;
+                    if (numer > 0 && numer <= niedopiety.size()) {
+                        Zestaw* wybrany_zestaw = niedopiety[numer-1];
+
+                        bool dolaczono = false;
+                        for (int j = 0; j < pociagi.size(); j++) {
+                            if (wybrany_zestaw->czy_pasazerski() == pociagi[j][0]->czy_pasazerski() &&
+                                wybrany_zestaw->czy_towarowy() == pociagi[j][0]->czy_towarowy() &&
+                                wybrany_zestaw->czy_pocztowy() == pociagi[j][0]->czy_pocztowy()) {
+                                pociagi[j].push_back(wybrany_zestaw);
+                                dolaczono = true;
+                                break;
+                            }
+                        }
+                        if (!dolaczono) {
+                            vector<Zestaw*> nowy_pociag;
+                            nowy_pociag.push_back(wybrany_zestaw);
+                            pociagi.push_back(nowy_pociag);
+                        }
+
+                        niedopiety.erase(niedopiety.begin() + numer - 1);
+                    } else {
+                        cout << "Nieprawidlowy wybor." << endl;
+                    }
+                }
+                break;
+            case 7:
+// Wyjście z programu
+                cout << "Koniec programu." << endl;
+                return 0;
+            default:
+// Nieprawidłowy wybór
+                cout << "Nieprawidlowy wybor." << endl;
+                break;
+        }
+    }
+    return 0;
+}
